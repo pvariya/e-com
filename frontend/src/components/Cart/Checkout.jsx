@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import StripeBtn from "./StripeBtn";
 import PayPalBtn from "./PayPalBtn";
 const cart = {
   products: [
@@ -22,6 +25,7 @@ const cart = {
   totalprice: 100,
 };
 const Checkout = () => {
+
   const navigate = useNavigate();
   const [checkoutId, setCheckoutId] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
@@ -176,6 +180,18 @@ const Checkout = () => {
           </div>
 
           <div className="mt-6">
+          {/* {checkoutId && (
+          <Elements stripe={stripePromise}>
+            <div className="mt-6">
+              <h3 className="text-lg mb-4">Pay With Stripe</h3>
+              <StripeBtn
+                amount={cart.totalprice}
+                onSuccess={handlePaymentSuccess}
+                onError={(message) => alert(message)}
+              />
+            </div>
+          </Elements>
+        )} */}
             <button
               type="submit"
               className="w-full bg-black text-white py-3 rounded"

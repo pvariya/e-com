@@ -216,6 +216,33 @@ productRouter.get("/", async (req, res) => {
   }
 });
 
+productRouter.get("/bestSeller", async (req, res) => {
+  try {
+    const products = await Product.findOne().sort({
+      rating: -1,
+    });
+    if (products) {
+      res.send(products);
+    } else {
+      res.status(404).json({ message: "No Best seller found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server error");
+  }
+});
+
+productRouter.get("/new-arrivals", async (req, res) => {
+  try {
+    const product = await Product.find()
+      .sort({ createdAt: -1 })
+      .limit(8)
+      res.json(product);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server error");
+  }
+});
 productRouter.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -244,6 +271,8 @@ productRouter.get("/similer/:id", async (req, res) => {
     res.json(similerProduct);
   } catch (error) {
     console.log(error);
+    res.status(500).send("Server error");
   }
 });
+
 module.exports = productRouter;
