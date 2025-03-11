@@ -19,33 +19,39 @@ import UserMenegment from "./components/Admin/UserMenegment";
 import ProductManagement from "./components/Admin/ProductManagement";
 import EditProduct from "./components/Admin/EditProduct";
 import OrderManagement from "./components/Admin/OrderManagement";
-
+import { Provider } from "react-redux";
+import store from "./redux/store";
 function App() {
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" />
-      <Routes>
-        <Route path="/" element={<LayoutUser />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/collection/:collection" element={<CollectionPage />} />
-          <Route path="product/:id" element={<ProductDetails />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/order/:id" element={<OrderDetailsPage />} />
-          <Route path="/my-orders" element={<MyOrderPage />} />
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminHomePage/>} />
-          <Route path="users" element={<UserMenegment/>}/>
-          <Route path="products" element={<ProductManagement/>}/>
-          <Route path="products/:id/edit" element={<EditProduct/>}/>
-          <Route path="orders" element={<OrderManagement/>}/>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Toaster position="top-right" />
+        <Routes>
+          <Route path="/" element={<LayoutUser />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/collection/:collection"
+              element={<CollectionPage />}
+            />
+            <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/order/:id" element={<OrderDetailsPage />} />
+            <Route path="/my-orders" element={<MyOrderPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminHomePage />} />
+            <Route path="users" element={<UserMenegment />} />
+            <Route path="products" element={<ProductManagement />} />
+            <Route path="products/:id/edit" element={<EditProduct />} />
+            <Route path="orders" element={<OrderManagement />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   );
 }
 

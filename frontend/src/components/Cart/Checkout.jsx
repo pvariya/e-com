@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import StripeBtn from "./StripeBtn";
 import PayPalBtn from "./PayPalBtn";
 const cart = {
   products: [
