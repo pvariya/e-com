@@ -6,22 +6,63 @@ import {
 import axios from "axios";
 import { API } from "../../config/url";
 
+// export const fetchProductsByFilters = createAsyncThunk(
+//   "products/fetchByFilters",
+//   async ({
+//     collection,
+//     size,
+//     color,
+//     gender,
+//     minPrice,
+//     maxPrice,
+//     sortBy,
+//     search,
+//     category,
+//     material,
+//     brand,
+//     limit,
+//   }) => {
+//     const query = new URLSearchParams();
+//     if (collection) query.append("collection", collection);
+//     if (size) query.append("size", size);
+//     if (color) query.append("color", color);
+//     if (gender) query.append("gender", gender);
+//     if (minPrice) query.append("minPrice", minPrice);
+//     if (maxPrice) query.append("maxPrice", maxPrice);
+//     if (sortBy) query.append("sortBy", sortBy);
+//     if (search) query.append("search", search);
+//     if (category) query.append("category", category);
+//     if (material) query.append("material", material);
+//     if (brand) query.append("brand", brand);
+//     if (limit) query.append("limit", limit);
+
+//     try {
+//       const response = await API.get(`/products/${query.toString()}`);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 export const fetchProductsByFilters = createAsyncThunk(
   "products/fetchByFilters",
-  async ({
-    collection,
-    size,
-    color,
-    gender,
-    minPrice,
-    maxPrice,
-    sortBy,
-    search,
-    category,
-    material,
-    brand,
-    limit,
-  }) => {
+  async (
+    {
+      collection,
+      size,
+      color,
+      gender,
+      minPrice,
+      maxPrice,
+      sortBy,
+      search,
+      category,
+      material,
+      brand,
+      limit,
+    },
+    { rejectWithValue }
+  ) => {
     const query = new URLSearchParams();
     if (collection) query.append("collection", collection);
     if (size) query.append("size", size);
@@ -37,19 +78,18 @@ export const fetchProductsByFilters = createAsyncThunk(
     if (limit) query.append("limit", limit);
 
     try {
-      const response = await API.post(`/products/${query.toString()}`);
+      const response = await API.get(`/products?${query.toString()}`); // ✅ Use GET instead of POST
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Server error");
     }
   }
 );
 
 export const fetchProductDetails = createAsyncThunk(
   "products/fetchProductDetails",
-  async (productId) => {
-    const response = await API.get(`/products/${id}`);
-
+  async (productFetchId) => {
+    const response = await API.get(`/products/${productFetchId}`);
     return response.data;
   }
 );
@@ -76,7 +116,7 @@ const ProductSlice = createSlice({
   name: "products",
   initialState: {
     products: [],
-    productDetails: null,
+    selectedProduct: null,
     similerProducts: [],
     loading: false,
     error: null,
@@ -91,6 +131,7 @@ const ProductSlice = createSlice({
       search: "",
       material: "",
       brand: "",
+      collection: "",
     },
   },
   reducers: {
@@ -109,6 +150,7 @@ const ProductSlice = createSlice({
         search: "",
         material: "",
         brand: "",
+        collection: "",
       };
     },
   },
@@ -125,7 +167,7 @@ const ProductSlice = createSlice({
       })
       .addCase(fetchProductsByFilters.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       // fetchProductDetails
       .addCase(fetchProductDetails.pending, (state) => {
@@ -134,11 +176,11 @@ const ProductSlice = createSlice({
       })
       .addCase(fetchProductDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.productDetails = action.payload;
+        state.selectedProduct = action.payload;
       })
       .addCase(fetchProductDetails.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       // update product
       .addCase(updateProduct.pending, (state) => {
@@ -157,7 +199,7 @@ const ProductSlice = createSlice({
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       // similer products
       .addCase(fetchSimilerProducts.pending, (state) => {
@@ -170,7 +212,7 @@ const ProductSlice = createSlice({
       })
       .addCase(fetchSimilerProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       });
   },
 });

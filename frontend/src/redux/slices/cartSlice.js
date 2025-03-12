@@ -123,7 +123,7 @@ export const mergeCart = createAsyncThunk(
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    cart: loadCartFromStorage,
+    cart: loadCartFromStorage(),
     loading: false,
     error: null,
   },

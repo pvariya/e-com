@@ -34,11 +34,13 @@ export const fetchOrderDetails = createAsyncThunk(
 
 const orderSlice = createSlice({
   name: "orders",
-  orders: [],
-  totalOrders: 0,
-  orderDetails: null,
-  loading: false,
-  error: null,
+  initialState: {
+    orders: [],
+    totalOrders: 0,
+    orderDetails: null,
+    loading: false,
+    error: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -70,4 +72,4 @@ const orderSlice = createSlice({
       });
   },
 });
-export default orderSlice.reducer
+export default orderSlice.reducer;

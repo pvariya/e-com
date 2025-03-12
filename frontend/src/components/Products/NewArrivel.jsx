@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { API } from "../../config/url";
 const NewArrivel = () => {
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -8,72 +9,21 @@ const NewArrivel = () => {
   const [scrollLeft, setScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const newArrivel = [
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=1", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=2", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=3", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=4", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=5", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=6", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=7", alttext: "Product 1" },
-      ],
-    },
-    {
-      _id: 1,
-      name: "Product 1",
-      price: 100,
-      img: [
-        { url: "https://picsum.photos/500/500?random=8", alttext: "Product 1" },
-      ],
-    },
-  ];
+
+  const [newArrivel, setNewArrivels] = useState([]);
+
+  useEffect(()=>{
+    const fetchnewArrivels =async()=>{
+      try {
+        const res = await API.get('products//new-arrivals')
+        setNewArrivels(res.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchnewArrivels()
+  },[])
 
   const handalMouseDown = (e) => {
     setIsDragging(true);
@@ -116,7 +66,7 @@ const NewArrivel = () => {
       updateScrollBtn();
       return () => container.removeEventListener("scroll", updateScrollBtn);
     }
-  },[]);
+  }, [newArrivel]);
   return (
     <section className="py-16 px-4 lg:py-0">
       <div className="container mx-auto text-center mb-10 relative">
@@ -168,15 +118,15 @@ const NewArrivel = () => {
             className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] relative  "
           >
             <img
-              src={product.img[0]?.url}
-              alt={product.img[0]?.alttext || product.name}
+              src={product.images[0]?.url}
+              alt={product.images[0]?.alttext || product.name}
               className="w-full h-[500px] object-cover rounded-lg"
               draggable={false}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white p-4 rounded-b-lg">
               <Link to={`/product/${product._id}`}>
                 <h4 className="font-medium">{product.name}</h4>
-                <p className="mt-1">{product.price}</p>
+                <p className="mt-1">$ {product.price}</p>
               </Link>
             </div>
           </div>
