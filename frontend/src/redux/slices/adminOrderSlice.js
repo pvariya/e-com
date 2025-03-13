@@ -76,7 +76,7 @@ const adminOrderSlice = createSlice({
       })
       .addCase(fetchAdminOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       //update order status
       .addCase(updateOrderStatus.pending, (state) => {
@@ -95,7 +95,7 @@ const adminOrderSlice = createSlice({
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       //delete admin order
       .addCase(deleteAdminorder.fulfilled, (state, action) => {

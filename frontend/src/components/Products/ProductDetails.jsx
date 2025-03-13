@@ -10,8 +10,6 @@ import {
 import { addToCart } from "../../redux/slices/cartSlice";
 
 const ProductDetails = ({ productId }) => {
-  // console.log("product id",productId);
-
   const { id } = useParams();
   const dispatch = useDispatch();
   const { selectedProduct, loading, error, similarProducts } = useSelector(
@@ -69,10 +67,13 @@ const ProductDetails = ({ productId }) => {
         userId: user?._id,
       })
     )
-      .then(() => {
-        toast.success("Product added To Cart.", {
-          duration: 2000,
-        });
+      .then((res) => {
+        console.log("Add to Cart Response:", res);
+        toast.success("Product added To Cart.", { duration: 2000 });
+      })
+      .catch((err) => {
+        console.error("Add to Cart Error:", err);
+        toast.error("Failed to add product to cart.");
       })
       .finally(() => {
         setIsButtonDisabled(false);
@@ -86,9 +87,9 @@ const ProductDetails = ({ productId }) => {
   }
 
   return (
-    <div className="p-6 flex justify-center">
+    <div className="p-6">
       {selectedProduct && (
-        <div className="max-w-full mx-auto bg-white p-8 rounded-lg">
+        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
           <div className="flex flex-col md:flex-row">
             <div className="hidden md:flex flex-col space-y-4 mr-6">
               {selectedProduct?.images?.map((images, index) => (
@@ -243,8 +244,11 @@ const ProductDetails = ({ productId }) => {
             <h2 className="text-2xl text-center font-medium mb-4">
               You May Also Like
             </h2>
-            <ProductGrid products={similarProducts||[]} loading={loading} error={error} />
-
+            <ProductGrid
+              products={similarProducts}
+              loading={loading}
+              error={error}
+            />
           </div>
         </div>
       )}

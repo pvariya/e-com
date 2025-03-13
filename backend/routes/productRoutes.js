@@ -8,6 +8,7 @@ productRouter.post("/", protect, admin, async (req, res) => {
   try {
     const {
       name,
+
       description,
       price,
       discountPrice,
@@ -20,7 +21,7 @@ productRouter.post("/", protect, admin, async (req, res) => {
       collections,
       material,
       gender,
-      img,
+      images,
       isFeatured,
       isPublished,
       dimensions,
@@ -42,7 +43,7 @@ productRouter.post("/", protect, admin, async (req, res) => {
       collections,
       material,
       gender,
-      img,
+      images,
       isFeatured,
       isPublished,
       dimensions,
@@ -51,7 +52,6 @@ productRouter.post("/", protect, admin, async (req, res) => {
       user: req.user._id,
     });
 
-    // const createProduct =await product.save();
     res.status(201).json(product);
   } catch (error) {
     console.log(error);
@@ -75,7 +75,7 @@ productRouter.put("/:id", protect, admin, async (req, res) => {
       collections,
       material,
       gender,
-      img,
+      images,
       isFeatured,
       isPublished,
       dimensions,
@@ -98,7 +98,7 @@ productRouter.put("/:id", protect, admin, async (req, res) => {
       product.collections = collections || product.collections;
       product.material = material || product.material;
       product.gender = gender || product.gender;
-      product.img = img || product.img;
+      product.images = images || product.images;
       product.isFeatured =
         isFeatured !== undefined ? isFeatured : product.isFeatured;
       product.isPublished =
@@ -233,27 +233,31 @@ productRouter.get("/", async (req, res) => {
     } = req.query;
 
     let query = {};
-    if (collection && collection.toLowerCase() !== "all") {
-      query.collections = collection;
+
+    if (collection && collection.toLowerCase().startsWith("all")) {
+      // console.log("Ignoring 'all' collection filter");
+    } else if (collection) {
+      query.collection = collection.trim();
     }
+
     if (category && category.toLowerCase() !== "all") {
-      query.category = category;
+      query.category = category.trim();
     }
 
     if (material) {
-      query.material = { $in: material.split(",") };
+      query.material = { $in: material.split(",").map((m) => m.trim()) };
     }
     if (brand) {
-      query.brand = { $in: brand.split(",") };
+      query.brand = { $in: brand.split(",").map((b) => b.trim()) };
     }
     if (size) {
-      query.sizes = { $in: size.split(",") };
+      query.sizes = { $in: size.split(",").map((s) => s.trim()) };
     }
     if (color) {
-      query.colors = { $in: [color] };
+      query.colors = { $in: color.split(",").map((c) => c.trim()) };
     }
     if (gender) {
-      query.gender = gender;
+      query.gender = gender.trim();
     }
     if (minPrice || maxPrice) {
       query.price = {};
@@ -277,7 +281,7 @@ productRouter.get("/", async (req, res) => {
         case "priceDesc":
           sort = { price: -1 };
           break;
-        case "ratingDesc": // ✅ Fix the duplicate case
+        case "ratingDesc":
           sort = { rating: -1 };
           break;
         default:
@@ -288,7 +292,7 @@ productRouter.get("/", async (req, res) => {
     let products = await Product.find(query)
       .sort(sort)
       .limit(Number(limit) || 0);
-    
+
     res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -314,10 +318,8 @@ productRouter.get("/bestSeller", async (req, res) => {
 
 productRouter.get("/new-arrivals", async (req, res) => {
   try {
-    const product = await Product.find()
-      .sort({ createdAt: -1 })
-      .limit(8)
-      res.json(product);
+    const product = await Product.find().sort({ createdAt: -1 }).limit(8);
+    res.json(product);
   } catch (error) {
     console.log(error);
     res.status(500).send("Server error");

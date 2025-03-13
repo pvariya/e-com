@@ -1,35 +1,22 @@
-import React from "react";
-const checkout = {
-  _id: 2133,
-  createdAt: new Date(),
-  checkoutItems: [
-    {
-      productId: 1,
-      name: "Product 1",
-      price: 100,
-      size: "M",
-      color: "red",
-      quantity: 2,
-      img: "https://picsum.photos/150?random=1",
-    },
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { clearCart } from "../redux/slices/cartSlice";
 
-    {
-      productId: 2,
-      name: "Product 1",
-      price: 100,
-      size: "M",
-      color: "red",
-      quantity: 1,
-      img: "https://picsum.photos/150?random=2",
-    },
-  ],
-  shippingAddress: {
-    addsress: "123 Main St",
-    city: "New York",
-    country: "USA",
-  },
-};
 const OrderConfirmation = () => {
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const {checkout} = useSelector((state)=>state.checkout) 
+  useEffect(()=>{
+    if(checkout && checkout._id){
+      dispatch(clearCart())
+      localStorage.removeItem("cart")
+    }else{
+      navigate("/my-order")
+    }
+  },[checkout,dispatch,navigate])
+
   const calculateEstimatedDelivery = (createdAt) => {
     const orderDate = new Date(createdAt);
     orderDate.setDate(orderDate.getDate() + 10);
@@ -64,7 +51,7 @@ const OrderConfirmation = () => {
             {checkout.checkoutItems.map((item) => (
               <div key={item.productId} className="flex items-center mb-4">
                 <img
-                  src={item.img}
+                  src={item.image}
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded-md mr-4"
                 />

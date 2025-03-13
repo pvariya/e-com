@@ -40,7 +40,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/order/:id" element={<OrderDetailsPage />} />
-            <Route path="/my-orders" element={<MyOrderPage />} />
+            <Route path="my-order" element={<MyOrderPage />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminHomePage />} />

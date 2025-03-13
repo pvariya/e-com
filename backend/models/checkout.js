@@ -40,6 +40,4 @@ const checkoutSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-
 module.exports = mongoose.model("Checkout", checkoutSchema);

@@ -76,7 +76,7 @@ const adminSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       })
       //update user
       .addCase(updateUser.fulfilled, (state, action) => {
@@ -103,7 +103,7 @@ const adminSlice = createSlice({
       })
       .addCase(addUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       });
   },
 });

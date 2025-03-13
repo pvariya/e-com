@@ -1,34 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { useDispatch, useSelector } from "react-redux";
+import { createCheckout } from "../../redux/slices/checkoutSlice";
+import { API } from "../../config/url";
 import PayPalBtn from "./PayPalBtn";
-const cart = {
-  products: [
-    {
-      name: "Product 1",
-      price: 100,
 
-      size: "m",
-      color: "red",
-      img: "https://picsum.photos/200?random=1",
-    },
-    {
-      name: "Product 1",
-      price: 100,
-      size: "m",
-      color: "red",
-      img: "https://picsum.photos/200?random=2",
-    },
-  ],
-  totalprice: 100,
-};
 const Checkout = () => {
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { cart, loading, error } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
+  console.log("cart", cart);
+
   const [checkoutId, setCheckoutId] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
-    fristName: "",
+    firstName: "",
     lastName: "",
     phone: "",
     address: "",
@@ -37,43 +23,122 @@ const Checkout = () => {
     country: "",
   });
 
-  const handalCreateCheckout = (e) => {
+  useEffect(() => {
+    if (!cart || !cart.products || cart.products.length === 0) {
+      navigate("/");
+    }
+  }, [cart, navigate]);
+
+  const handleCreateCheckout = async (e) => {
     e.preventDefault();
-    setCheckoutId(1234);
-    navigate(`/order-confirmation`);
+
+    if (!cart || cart.products.length === 0) {
+      return;
+    }
+
+    try {
+      const res = await dispatch(
+        createCheckout({
+          checkoutItems: cart.products,
+          shippingAddress,
+          paymentMethod: "paypal",
+          totalPrice: cart.totalPrice,
+        })
+      );
+
+      if (res.payload && res.payload._id) {
+        setCheckoutId(res.payload._id);
+      }
+    } catch (error) {
+      console.error("Error creating checkout:", error);
+    }
   };
 
-  const handlePaymentSuccess = (details) => {
-    console.log("payment success", details);
-    navigate(`/order-confirmation`);
+  useEffect(() => {
+    if (checkoutId) {
+      handlePaymentSuccess();
+    }
+  }, [checkoutId]);
+
+  const handlePaymentSuccess = async () => {
+    if (!checkoutId) return;
+
+    try {
+      const res = await API.put(
+        `/checkout/${checkoutId}/pay`,
+        {
+          paymentStatus: "paid",
+          paymentDetails: {
+            transactionId: Date.now(),
+            paymentGateway: "PayPal",
+            amount: cart.totalPrice,
+            currency: "USD",
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
+
+      await handleFinalizeCheckout(checkoutId);
+    } catch (error) {
+      console.error("Payment failed:", error);
+    }
   };
+
+  const handleFinalizeCheckout = async (checkoutId) => {
+    try {
+      const res = await API.post(
+        `/checkout/${checkoutId}/finalize`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
+
+      navigate("/order-confirmation");
+    } catch (error) {
+      console.error("Finalizing checkout failed:", error);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error.message}</div>;
+  if (!cart || !cart.products || cart.products.length === 0)
+    return <div>No items in the cart.</div>;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-10 px-6 tracking-tighter">
       <div className="bg-white rounded-lg p-6">
-        <h2 className="text-2xl uppercase mb-6">Chechout</h2>
-        <form onSubmit={handalCreateCheckout}>
+        <h2 className="text-2xl uppercase mb-6">Checkout</h2>
+        <form onSubmit={handleCreateCheckout}>
           <h3 className="text-lg mb-4">Contact Details</h3>
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
             <input
               type="email"
-              value="user@gmail.com"
+              value={user ? user.email : ""}
               className="w-full p-2 border rounded"
               disabled
             />
           </div>
+
           <h3 className="text-lg mb-4">Delivery</h3>
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700">Frist Name</label>
+              <label className="block text-gray-700">First Name</label>
               <input
                 type="text"
                 className="w-full p-2 border rounded"
-                value={shippingAddress.fristName}
+                value={shippingAddress.firstName}
                 onChange={(e) =>
                   setShippingAddress({
                     ...shippingAddress,
-                    fristName: e.target.value,
+                    firstName: e.target.value,
                   })
                 }
                 required
@@ -179,51 +244,18 @@ const Checkout = () => {
           </div>
 
           <div className="mt-6">
-          {/* {checkoutId && (
-          <Elements stripe={stripePromise}>
-            <div className="mt-6">
-              <h3 className="text-lg mb-4">Pay With Stripe</h3>
-              <StripeBtn
-                amount={cart.totalprice}
-                onSuccess={handlePaymentSuccess}
-                onError={(message) => alert(message)}
-              />
-            </div>
-          </Elements>
-        )} */}
             <button
               type="submit"
               className="w-full bg-black text-white py-3 rounded"
-              onClick={() => setCheckoutId(true)}
             >
               Continue to Payment
             </button>
-            {/* {!checkoutId ? (
-              <button
-                type="submit"
-                className="w-full bg-black text-white py-3 rounded"
-                onClick={() => setCheckoutId(true)}
-              >
-                Continue to Payment
-              </button>
-            ) : (
-              <div>
-                <h3 className="text-lg mb-4">Pay With PayPal</h3>
-                <PayPalBtn
-                  amount={100}
-                  onSuccess={handlePaymentSuccess}
-                  onError={() => alert("Payment failed. Please try again")}
-                />
-              </div>
-            )} */}
           </div>
         </form>
       </div>
 
-      {/* right section */}
       <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-lg mb-4">Oerder Summary</h3>
-
+        <h3 className="text-lg mb-4">Order Summary</h3>
         <div className="border-t py-4 mb-4">
           {cart.products.map((product, index) => (
             <div
@@ -232,7 +264,7 @@ const Checkout = () => {
             >
               <div className="flex items-start">
                 <img
-                  src={product.img}
+                  src={product.image}
                   alt={product.name}
                   className="w-20 h-24 object-cover mr-4"
                 />
@@ -245,18 +277,6 @@ const Checkout = () => {
               <p className="text-xl">${product.price?.toLocaleString()}</p>
             </div>
           ))}
-        </div>
-
-        <div className="flex justify-between items-center text-lg mb-4">
-          <p>Subtotal</p><p>${cart.totalprice?.toLocaleString()}</p>
-        </div>
-        <div className="flex justify-between items-center text-lg ">
-          <p>Shipping</p>
-          <p>Free</p>
-        </div>
-        <div className="flex justify-between items-center text-lg mt-4 border-t pt-4">
-          <p>Total</p>
-          <p>${cart.totalprice?.toLocaleString()}</p>
         </div>
       </div>
     </div>

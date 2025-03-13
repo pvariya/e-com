@@ -1,42 +1,25 @@
 import React, { useEffect, useState } from "react";
-import {useNavigate} from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { fetchUserOrders } from "../redux/slices/orderSlice";
 const MyOrderPage = () => {
-  const [order, setOrder] = useState([]);
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { orders, loading, error } = useSelector((state) => state.orders);
+  console.log("orders", orders);
+
   useEffect(() => {
-    setTimeout(() => {
-      const mockOrder = [
-        {
-          _id: 1,
-          creatAt: new Date(),
-          shipingAddress: { city: "surat", country: "india" },
-          orderItems: [
-            { name: "shirt", img: "http://picsum.photos/500/500?ramdom=1" },
-          ],
-          totalPrice: 100,
-          isPaid: true,
-        },
-        {
-          _id: 2,
-          creatAt: new Date(),
-          shipingAddress: { city: "surat", country: "india" },
-          orderItems: [
-            { name: "shirt", img: "http://picsum.photos/500/500?ramdom=2" },
-          ],
-          totalPrice: 100,
-          isPaid: true,
-        },
-      ];
+    console.log("Dispatching fetchUserOrders...");
+    dispatch(fetchUserOrders());
+  }, [dispatch]);
+  
 
-      setOrder(mockOrder);
-    }, 1000);
-  }, []);
+  const handleRowClick = (orderId) => {
+    navigate(`/order/${orderId}`);
+  };
 
-
-
-  const handleRowClick=(orderId)=>{
-    navigate(`/order/${orderId}`)
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <h2 className="text-xl sm:text-2xl font-bold mb-6">My Order</h2>
@@ -54,11 +37,11 @@ const MyOrderPage = () => {
             </tr>
           </thead>
           <tbody>
-            {order.length > 0 ? (
-              order.map((order) => (
+            {orders.length > 0 ? (
+              orders.map((order) => (
                 <tr
                   key={order._id}
-                  onClick={()=>handleRowClick(order._id)}
+                  onClick={() => handleRowClick(order._id)}
                   className="border-b hover:border-gray-50 cursor-pointer"
                 >
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
@@ -72,15 +55,16 @@ const MyOrderPage = () => {
                     #{order._id}
                   </td>
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
-                    {new Date(order.creatAt).toLocaleDateString()}
-                    {"||"}
-                    {new Date(order.creatAt).toLocaleTimeString()}
+                    {new Date(order.createdAt).toLocaleDateString()} ||{" "}
+                    {new Date(order.createdAt).toLocaleTimeString()}
                   </td>
+
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
-                    {order.shipingAddress
-                      ? `${order.shipingAddress.city},${order.shipingAddress.country}`
+                    {order.shippingAddress
+                      ? `${order.shippingAddress.city}, ${order.shippingAddress.country}`
                       : "N/A"}
                   </td>
+
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
                     {order.orderItems.length}
                   </td>
@@ -103,7 +87,7 @@ const MyOrderPage = () => {
             ) : (
               <tr>
                 <td colSpan={7} className="py-4 px-4 text-center text-gray-500">
-                  Tou have a no order
+                  you have a no order
                 </td>
               </tr>
             )}

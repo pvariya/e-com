@@ -8,8 +8,8 @@ const loadCartFromStorage = () => {
   return storedCart ? JSON.parse(storedCart) : { products: [] };
 };
 
-const saveCartToStorage = () => {
-  localStorage.setItem("cart", JSON.stringify(cart));
+const saveCartToStorage = (cartData) => {
+  localStorage.setItem("cart", JSON.stringify(cartData));
 };
 
 export const fetchCart = createAsyncThunk(
@@ -34,21 +34,18 @@ export const addToCart = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const respons = await API.post(
-        "/cart" >
-          {
-            productId,
-            quantity,
-            size,
-            color,
-            guestId,
-            userId,
-          }
-      );
+      const respons = await API.post("/cart", {
+        productId,
+        quantity,
+        size,
+        color,
+        guestId,
+        userId,
+      });
       return respons.data;
     } catch (error) {
       console.log(error);
-      return rejectWithValue(error.respons.data);
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -147,7 +144,7 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = true;
-        state.error = action.payload.message || "failed to fetch card";
+        state.error = action.payload || "failed to fetch card";
       })
       //   add to cart
       .addCase(addToCart.pending, (state) => {
@@ -160,8 +157,8 @@ const cartSlice = createSlice({
         saveCartToStorage(action.payload);
       })
       .addCase(addToCart.rejected, (state, action) => {
-        state.loading = true;
-        state.error = action.payload.message || "failed to add to card";
+        state.loading = false;
+        state.error = action.payload || "failed to add to card";
       })
       //   update cart itrm quantity
       .addCase(updateCartItemQty.pending, (state) => {
@@ -175,7 +172,7 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItemQty.rejected, (state, action) => {
         state.loading = true;
-        state.error = action.payload.message || "failed to update item qty ";
+        state.error = action.payload || "failed to update item qty ";
       })
       //   remove from cart
       .addCase(removeCartItem.pending, (state) => {
@@ -189,7 +186,7 @@ const cartSlice = createSlice({
       })
       .addCase(removeCartItem.rejected, (state, action) => {
         state.loading = true;
-        state.error = action.payload.message || "failed to remove item";
+        state.error = action.payload || "failed to remove item";
       })
       //  merge cart
       .addCase(mergeCart.pending, (state) => {
@@ -203,11 +200,10 @@ const cartSlice = createSlice({
       })
       .addCase(mergeCart.rejected, (state, action) => {
         state.loading = true;
-        state.error = action.payload.message || "failed to merge cart";
+        state.error = action.payload || "failed to merge cart";
       });
   },
 });
 
-
-export const {clearCart}= cartSlice.actions
-export default cartSlice.reducer
+export const { clearCart } = cartSlice.actions;
+export default cartSlice.reducer;

@@ -13,7 +13,6 @@ const Home = () => {
   const dispatch = useDispatch();
   const { products, loading, error } = useSelector((state) => state.products);
   const [bestSellerProduct, setBestSellerProduct] = useState(null);
-  // console.log("best se",setBestSellerProduct._id);
   
   useEffect(() => {
     dispatch(
@@ -28,7 +27,6 @@ const Home = () => {
       try {
         const response = await API.get("/products/bestSeller");
         setBestSellerProduct(response.data);
-        // console.log(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -41,7 +39,7 @@ const Home = () => {
       <GenderCollectionSection />
       <NewArrivel />
 
-      <h2 className="text-3xl text-center font-bold mb-4">Best Seller</h2>
+      <h2 className="text-3xl text-center font-bold mb-4 mt-20">Best Seller</h2>
       {bestSellerProduct && bestSellerProduct._id ? (
         <ProductDetails productId={bestSellerProduct._id} />
       ) : (

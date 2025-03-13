@@ -2,25 +2,30 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API } from "../../config/url";
 
 export const fetchUserOrders = createAsyncThunk(
-  "orders/fetchuserOrders",
+  "orders/fetchUserOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const respons = await API.get("/orders/my-orders", {
+      console.log("Fetching orders...");
+      const response = await API.get("/orders/my-orders", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
         },
       });
-      return respons.data;
+      console.log("Orders fetched:", response.data); 
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error("Error fetching orders:", error.response?.data || error);
+      return rejectWithValue(error.response?.data || "Unknown error");
     }
   }
 );
+
+
 export const fetchOrderDetails = createAsyncThunk(
   "orders/fetchorderDetails",
   async (id, { rejectWithValue }) => {
     try {
-      const respons = await API.get(`/o/orders/${id}`, {
+      const respons = await API.get(`/orders/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
         },
@@ -49,12 +54,13 @@ const orderSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserOrders.fulfilled, (state, action) => {
+        console.log("Redux state updated:", action.payload);
         state.loading = false;
         state.orders = action.payload;
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       });
 
     builder
@@ -63,12 +69,13 @@ const orderSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrderDetails.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.orderDetails = action.payload;
       })
       .addCase(fetchOrderDetails.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.message;
+        state.error = action.payload;
       });
   },
 });
