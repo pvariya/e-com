@@ -10,10 +10,11 @@ cloudinary.config({
   api_key: "699616665931218",
   api_secret: "3rJnkXv-qOlHpOUHlthwVCe9o3s",
 });
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-uploadRouter.post("/", upload.single("images"), async (req, res) => {
+uploadRouter.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No image uploaded" });
@@ -32,13 +33,13 @@ uploadRouter.post("/", upload.single("images"), async (req, res) => {
       });
     };
 
-    const result =await streamUpload(req.file.buffer);
+    const result = await streamUpload(req.file.buffer);
+    console.log("Uploaded Image URL:", result.secure_url);
     res.json({ imageUrl: result.secure_url });
   } catch (error) {
-    console.error(error);
+    console.error("Upload error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = uploadRouter;

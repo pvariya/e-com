@@ -1,17 +1,28 @@
-import React, { useState } from "react";
-import { use } from "react";
-import { TbPassword } from "react-icons/tb";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  addUser,
+  deleteUser,
+  fetchAdminUser,
+  updateUser,
+} from "../../redux/slices/adminSlice";
 
 const UserMenegment = () => {
-  const users = [
-    {
-      _id: 1,
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const { users, loading, error } = useSelector((state) => state.admin);
+  console.log(users);
 
-      name: "purv",
-      email: "p@gmail.com",
-      role: "admin",
-    },
-  ];
+  useEffect(() => {
+    if (user && user.role !== "admin") {
+      navigate("/");
+    }else{
+      dispatch(fetchAdminUser());
+    }
+  }, [dispatch,user, navigate]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,7 +35,7 @@ const UserMenegment = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("new user", formData);
+    dispatch(addUser(formData));
     setFormData({
       name: "",
       email: "",
@@ -34,19 +45,25 @@ const UserMenegment = () => {
   };
 
   const handleRoleChange = (userId, newRole) => {
-    console.log({ id: userId, role: newRole });
+    dispatch(updateUser({ id: userId, role: newRole }));
   };
 
-  const handleDeleteUser=(userId)=>{
-    if(window.confirm('Are you sure you want to delete')){
-        console.log("delete user", userId);
-        
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm("Are you sure you want to delete?")) {
+      try {
+        await dispatch(deleteUser(userId)).unwrap();
+        alert("User deleted successfully!");
+      } catch (error) {
+        alert("Error deleting user: " + error.message);
+      }
     }
-  }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6  ">
       <p className="text-2xl font-bold mb-6">User Managment</p>
-
+      {loading && <p>loading...</p>}
+      {error && <p>Error:{error}</p>}
       {/* add new user form */}
       <div className="p-6 rounded-lg mb-6">
         <h3 className="text-lg font-bold mb-4">Add New User</h3>
@@ -147,7 +164,7 @@ const UserMenegment = () => {
             ))}
           </tbody>
         </table>
-      </div> 
+      </div>
     </div>
   );
 };

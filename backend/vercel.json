@@ -1,0 +1,17 @@
+{
+  "name": "E-commerce App",
+  "version": 2,
+  "description": "A full-stack e-commerce application built with React, Next.js, Node.js, Express, MongoDB, and Tailwind CSS.",
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routers": [
+    {
+      "src": "/(.*)",
+      "dest": "index.js"
+    }
+  ]
+}

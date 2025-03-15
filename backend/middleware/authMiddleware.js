@@ -22,11 +22,11 @@ const protect = async (req, res, next) => {
   }
 };
 
-const admin =(req, res,next) => {
-  if(req.user && req.user.role === "admin"){
+const admin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
     next();
-  }else{
+  } else {
     res.status(403).json({ message: "Unauthorized, you are not an admin" });
   }
-}
-module.exports = { protect,admin };
+};
+module.exports = { protect, admin };

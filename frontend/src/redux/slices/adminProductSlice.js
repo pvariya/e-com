@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API } from "../../config/url";
 
-export const fetchProduct = createAsyncThunk(
-  "adminProduct/fetchProduct",
+export const fetchAdminProduct = createAsyncThunk(
+  "adminProduct/fetchAdminProduct",
   async () => {
     const product = await API.get("/product-Admin", {
       headers: {
@@ -17,7 +17,7 @@ export const createProduct = createAsyncThunk(
   "adminProduct/createProduct",
   async (productData, { rejectWithValue }) => {
     try {
-      const product = await API.post("/product-Admin", productData, {
+      const product = await API.post("/products", productData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
         },
@@ -32,7 +32,7 @@ export const createProduct = createAsyncThunk(
 export const updateUser = createAsyncThunk(
   "adminProduct/updateUser",
   async ({ id, productData }) => {
-    const response = await API.put(`/product-Admin/${id}`, productData, {
+    const response = await API.put(`/products/${id}`, productData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("userToken")}`,
       },
@@ -40,10 +40,10 @@ export const updateUser = createAsyncThunk(
     return response.data;
   }
 );
-export const deleteuser = createAsyncThunk(
-  "adminProduct/deleteUser",
+export const deleteProduct = createAsyncThunk(
+  "adminProduct/deleteProduct",
   async (id) => {
-    const response = await API.delete(`/product-Admin/${id}`, {
+    const response = await API.delete(`/products/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("userToken")}`,
       },
@@ -62,15 +62,15 @@ const adminProductSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProduct.pending, (state) => {
+      .addCase(fetchAdminProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProduct.fulfilled, (state, action) => {
+      .addCase(fetchAdminProduct.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
       })
-      .addCase(fetchProduct.rejected, (state, action) => {
+      .addCase(fetchAdminProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -91,7 +91,7 @@ const adminProductSlice = createSlice({
         }
       })
       // delete product
-      .addCase(deleteuser.fulfilled, (state, action) => {
+      .addCase(deleteProduct.fulfilled, (state, action) => {
         state.loading = false;
         state.products = state.products.filter(
           (product) => product._id !== action.payload

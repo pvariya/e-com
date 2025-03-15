@@ -1,20 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  fetchAdminOrders,
+  updateOrderStatus,
+} from "../../redux/slices/adminOrderSlice";
 
 const OrderManagement = () => {
-  const orders = [
-    {
-      _id: 123,
-      user: {
-        name: "purv",
-      },
-      totalPrice: 123,
-      status: "processing",
-    },
-  ];
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { orders, loading, error } = useSelector((state) => state.adminOrders);
+
+  useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/");
+    } else {
+      dispatch(fetchAdminOrders());
+    }
+  }, [dispatch, user, navigate]);
 
   const handleStatus = (orderId, status) => {
-    console.log({ id: orderId, status });
+    dispatch(updateOrderStatus({ id: orderId, status }));
   };
+  
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">Order Management</h2>
@@ -22,7 +39,7 @@ const OrderManagement = () => {
         <table className="min-w-full text-left text-gray-500">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700">
             <tr>
-              <th className="py-3 px-4">Order Id</th>
+              <th className="py-3 px-4">Order ID</th>
               <th className="py-3 px-4">Customer</th>
               <th className="py-3 px-4">Total Price</th>
               <th className="py-3 px-4">Status</th>
@@ -33,14 +50,14 @@ const OrderManagement = () => {
             {orders.length > 0 ? (
               orders.map((order) => (
                 <tr
-                  key={order}
+                  key={order._id} // ✅ Fixed duplicate key issue
                   className="border-b hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="py-4 px-4 font-medium text-gray-900 whitespace-nowrap">
                     #{order._id}
                   </td>
-                  <td className="p-4">{order.user.name}</td>
-                  <td className="p-4">{order.totalPrice}</td>
+                  <td className="p-4">{order?.user?.name || "N/A"}</td>
+                  <td className="p-4">${order?.totalPrice?.toFixed(2) || "0.00"}</td>
                   <td className="p-4">
                     <select
                       value={order.status}
@@ -58,12 +75,12 @@ const OrderManagement = () => {
                       onClick={() => handleStatus(order._id, "Delivered")}
                       className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                     >
-                      Mark as delivered
+                      Mark as Delivered
                     </button>
                   </td>
                 </tr>
               ))
-            ) : ( 
+            ) : (
               <tr>
                 <td colSpan="5" className="p-4 text-center text-gray-600">
                   No orders found.
@@ -78,3 +95,4 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
+ 

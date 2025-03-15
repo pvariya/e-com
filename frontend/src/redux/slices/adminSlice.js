@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API } from "../../config/url";
 
-export const fetchUser = createAsyncThunk("admin/fetchUser", async () => {
-  const respons = await API.get("admin/users", {
+export const fetchAdminUser = createAsyncThunk("admin/fetchAdminUser", async () => {
+  const respons = await API.get("/admin", {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("userToken")}`,
     },
@@ -58,7 +58,7 @@ export const deleteUser = createAsyncThunk("admin/deleteUser", async (id) => {
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
-    user: [],
+    users: [],
     loading: false,
     error: null,
   },
@@ -66,31 +66,33 @@ const adminSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // fetch users
-      .addCase(fetchUser.pending, (state) => {
+      .addCase(fetchAdminUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUser.fulfilled, (state, action) => {
+      .addCase(fetchAdminUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.users = action.payload;
       })
-      .addCase(fetchUser.rejected, (state, action) => {
+      .addCase(fetchAdminUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       //update user
       .addCase(updateUser.fulfilled, (state, action) => {
+        console.log("action payload",action.payload);
+
         const updateUser = action.payload;
-        const userIndex = state.user.findIndex(
+        const userIndex = state.users.findIndex(
           (user) => user._id === updateUser._id
         );
-        if (userIndex) {
-          state.user[userIndex] = updateUser;
+        if (userIndex !== 1) {
+          state.users[userIndex] = updateUser;
         }
       })
       // delete user
       .addCase(deleteUser.fulfilled, (state, action) => {
-        state.user = state.user.filter((user) => user._id !== action.payload);
+        state.users = state.users.filter((user) => user._id !== action.payload);
       })
       // add user
       .addCase(addUser.pending, (state) => {
@@ -99,7 +101,7 @@ const adminSlice = createSlice({
       })
       .addCase(addUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user.push(action.payload, user);
+        state.users.push(action.payload);
       })
       .addCase(addUser.rejected, (state, action) => {
         state.loading = false;

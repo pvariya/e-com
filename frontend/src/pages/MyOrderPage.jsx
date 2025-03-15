@@ -46,7 +46,7 @@ const MyOrderPage = () => {
                 >
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
                     <img
-                      src={order.orderItems[0].img}
+                      src={order.orderItems[0].image}
                       alt={order.orderItems[0].name}
                       className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg"
                     />
@@ -74,12 +74,12 @@ const MyOrderPage = () => {
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
                     <span
                       className={`${
-                        order.isPaid
+                        order.idPaid
                           ? "bg-green-100  text-green-700"
                           : "bg-red-100 text-red-700"
                       } px-2 py-1 rounded-full text-xs sm:text-sm font-medium`}
                     >
-                      {order.isPaid ? "Paid" : "Not Paid"}
+                      {order.idPaid ? "Paid" : "Not Paid"}
                     </span>
                   </td>
                 </tr>

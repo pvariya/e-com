@@ -3,9 +3,9 @@ const { protect, admin } = require("../middleware/authMiddleware");
 const User = require("../models/User");
 const adminRoute = express.Router();
 
-adminRoute.get("/users", protect, admin, async (req, res) => {
+adminRoute.get("/", protect, admin, async (req, res) => {
   try {
-    const user = await User.find({});
+    const user = await User.find(req.body);
     res.json(user);
   } catch (error) {
     console.error(error);
@@ -31,7 +31,7 @@ adminRoute.post("/users", protect, admin, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-adminRoute.put("/:id", protect, admin, async (req, res) => {
+adminRoute.put("/users/:id", protect, admin, async (req, res) => {
   try {
     let user = await User.findById(req.params.id);
     if (user) {
@@ -49,7 +49,7 @@ adminRoute.put("/:id", protect, admin, async (req, res) => {
   }
 });
 
-adminRoute.delete("/:id", protect, admin, async (req, res) => {
+adminRoute.delete("/users/:id", protect, admin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (user) {

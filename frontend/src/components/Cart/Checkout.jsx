@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createCheckout } from "../../redux/slices/checkoutSlice";
 import { API } from "../../config/url";
-import PayPalBtn from "./PayPalBtn";
 
 const Checkout = () => {
   const navigate = useNavigate();

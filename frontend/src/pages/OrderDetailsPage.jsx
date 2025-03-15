@@ -1,62 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrderDetails } from "../redux/slices/orderSlice";
 const OrderDetailsPage = () => {
   const { id } = useParams();
-  const [orderDetails, setOrderDetails] = useState(null);
-
+  const dispatch = useDispatch();
+  const { orderDetails, loading, error } = useSelector((state) => state.orders);
   useEffect(() => {
-    const mockOrderDetails = {
-      _id: 1,
-      creatAt: new Date(),
-      idPaid: true,
-      isDelivered: false,
-      paymentMethod: "PayPal",
-      shippingMethod: "standard",
-      shippingAddress: {
-        city: "San Francisco",
-        country: "USA",
-      },
-      orderItems: [
-        {
-          productId: "1",
-          name: "jacket",
-          price: 100,
-          quantity: 1,
-          img: "https://picsum.photos/150?random=1",
-        },
-        {
-          productId: "2",
-          name: "jacket",
-          price: 100,
-          quantity: 1,
-          img: "https://picsum.photos/150?random=1",
-        },
-        {
-          productId: "3",
-          name: "jacket",
-          price: 100,
-          quantity: 1,
-          img: "https://picsum.photos/150?random=1",
-        },
-        {
-          productId: "4",
-          name: "jacket",
-          price: 100,
-          quantity: 1,
-          img: "https://picsum.photos/150?random=1",
-        },
-        {
-          productId: "5",
-          name: "jacket",
-          price: 100,
-          quantity: 1,
-          img: "https://picsum.photos/150?random=1",
-        },
-      ],
-    };
-    setOrderDetails(mockOrderDetails);
-  }, [id]);
+    console.log("Dispatching fetchOrderDetails...");
+    dispatch(fetchOrderDetails(id));
+  }, [dispatch, id]);
 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :{error}</p>;
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <h2 className="text-2xl md:text-3xl font-bold mb-6">Order Details</h2>
@@ -132,7 +88,7 @@ const OrderDetailsPage = () => {
                   <tr key={items.productId} className="border-b text-center">
                     <td className="py-2 px-4 flex items-center ">
                       <img
-                        src={items.img}
+                        src={items.image}
                         alt={items.name}
                         className="w-12 h-12 object-cover rounded-lg mr-4"
                       />
@@ -143,7 +99,7 @@ const OrderDetailsPage = () => {
                         {items.name}
                       </Link>
                     </td>
-                    <td className="py-2 px-4">{items.price}</td>
+                    <td className="py-2 px-4">{items.price.toFixed(2)}</td>
                     <td className="py-2 px-4">{items.quantity}</td>
                     <td className="py-2 px-4">
                       {items.price * items.quantity}
@@ -154,7 +110,7 @@ const OrderDetailsPage = () => {
             </table>
           </div>
 
-          <Link to="/my-orders" className="text-blue-500 hover:underline">
+          <Link to="/my-order" className="text-blue-500 hover:underline">
             Back to my order
           </Link>
         </div>

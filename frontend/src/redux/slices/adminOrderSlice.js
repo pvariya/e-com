@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API } from "../../config/url";
 
 export const fetchAdminOrders = createAsyncThunk(
-  "fetchAdminOrders/adminOrders",
+  "adminOrders/adminOrders",
   async (__DO_NOT_USE__ActionTypes, { rejectWithValue }) => {
     try {
       const response = await API.get("/admin-order", {
@@ -18,23 +18,27 @@ export const fetchAdminOrders = createAsyncThunk(
 );
 
 export const updateOrderStatus = createAsyncThunk(
-  "fetchAdminOrders/updateOrderStatus",
-  async ({ id, orderData }, { rejectWithValue }) => {
+  "adminOrders/updateOrderStatus",
+  async ({ id, status }, { rejectWithValue }) => {
     try {
-      const response = await API.put(`/admin-order/${id}`, orderData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-      });
+      const response = await API.put(
+        `/admin-order/${id}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Error updating order");
     }
   }
 );
 
 export const deleteAdminorder = createAsyncThunk(
-  "fetchAdminOrders/deleteAdminorder",
+  "adminOrders/deleteAdminorder",
   async (id, { rejectWithValue }) => {
     try {
       await API.delete(`/admin-order/${id}`, {
